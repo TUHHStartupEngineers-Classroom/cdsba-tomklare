@@ -1,5 +1,5 @@
 ---
-title: "Probability Theory"
+title: "Probability Theory 1"
 ---
 
 ::: callout-note
