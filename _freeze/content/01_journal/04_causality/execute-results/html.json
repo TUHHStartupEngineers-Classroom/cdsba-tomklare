@@ -1,0 +1,18 @@
+{
+  "hash": "09f08a4078b5f37385a2ee9dcf640e55",
+  "result": {
+    "markdown": "---\ntitle: \"Causality\"\n---\n\n::: {.cell warnings='false' hash='04_causality_cache/html/unnamed-chunk-1_74ba65c48766f90040827fe23655a628'}\n\n```{.r .cell-code}\nlibrary(tidyverse)\n\nyear <- 2000:2009\n# *3-6.2\ndata_divorce <- c(4.97, 4.68, 4.62, 4.45, 4.32, 4.14, 4.2, 4.2, 4.2, 3.1)\ndata_margarine <- c(8.2, 7, 6.5, 5.3, 5.3, 4, 4.6, 4.5, 4.2, 3.7)/2.8+1.9\n\ndata <- data.frame(year, data_divorce, data_margarine)\n\nlimits = c(3.96, 5)\nlimits = c(2, 9)\n\nggplot(data, aes(x = year)) +\n  geom_line(aes(y = data_divorce), color = \"red\", linetype = \"solid\", linewidth = 1) +\n  geom_line(aes(y = data_margarine), color = \"black\", linetype = \"solid\", linewidth = 1) +\n  scale_y_continuous(name = \"Divorce rate in Maine\\nper 1000\", sec.axis = sec_axis(~.*2.8-1.9, name = \"Per capita consumption of margarine\\nlbs\")) +\n  labs(title = \"Divorce rate in Maine \\ncorrelates with \\nPer capita consumption of margarine\", x = \"year\")\n```\n\n::: {.cell-output-display}\n![](04_causality_files/figure-html/unnamed-chunk-1-1.png){width=672}\n:::\n:::",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-in-header": [
+        "<link href=\"../../site_libs/pagedtable-1.1/css/pagedtable.css\" rel=\"stylesheet\" />\r\n<script src=\"../../site_libs/pagedtable-1.1/js/pagedtable.js\"></script>\r\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
