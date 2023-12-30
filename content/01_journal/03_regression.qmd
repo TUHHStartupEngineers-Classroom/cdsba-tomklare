@@ -2,6 +2,43 @@
 title: "Regression and Statistical Inference"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+````{r}
+#| include: false
+library(tidyverse)
+````
+
+## Read table and check dimensions
+````{r}
+df <- readRDS("./Causal_Data_Science_Data/car_prices.rds")
+
+print(dim(df))
+````
+
+## Look at data
+````{r}
+summary(df)
+head(df)
+glimpse(df)
+````
+
+
+## Train linear model
+````{r}
+lm_all <- lm(price ~ ., data = df)
+summary(lm_all)
+````
+All parameters with a p-value of less than 0.05 are statistically relevant.
+
+## Regressor example
+The regressor 'enginesize' takes on continual data ranging from 61 to 326, as can be seen in the glimpse.
+The slope is 125.934 meaning if we increase the enginesize by 1, the price increases by 125.934.
+It is statistically relevant because the p-value is 5e-06 which is less than 0.05 (our assumed alpha).
+
+## Adding new variable
+````{r}
+df$seat_heating <- TRUE
+
+lm_all <- lm(price ~ ., data = df)
+summary(lm_all)
+````
+The model recognized that all observations for this new regressor are the same and therefore do not influence the resulting price. The coefficients are not available (NA) and therefore not included in the model.

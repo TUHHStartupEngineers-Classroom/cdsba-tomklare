@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Oliver Mork">
+<meta name="author" content="Tom Klare">
 
 <title>MyLabJournal - Regression and Statistical Inference</title>
 <style>
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -63,6 +97,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
 </head>
@@ -148,7 +185,17 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#read-table-and-check-dimensions" id="toc-read-table-and-check-dimensions" class="nav-link active" data-scroll-target="#read-table-and-check-dimensions"><span class="header-section-number">1</span> Read table and check dimensions</a></li>
+  <li><a href="#look-at-data" id="toc-look-at-data" class="nav-link" data-scroll-target="#look-at-data"><span class="header-section-number">2</span> Look at data</a></li>
+  <li><a href="#train-linear-model" id="toc-train-linear-model" class="nav-link" data-scroll-target="#train-linear-model"><span class="header-section-number">3</span> Train linear model</a></li>
+  <li><a href="#regressor-example" id="toc-regressor-example" class="nav-link" data-scroll-target="#regressor-example"><span class="header-section-number">4</span> Regressor example</a></li>
+  <li><a href="#adding-new-variable" id="toc-adding-new-variable" class="nav-link" data-scroll-target="#adding-new-variable"><span class="header-section-number">5</span> Adding new variable</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -165,7 +212,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Oliver Mork </p>
+             <p>Tom Klare </p>
           </div>
   </div>
     
@@ -176,21 +223,240 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>You can delete everything in here and start fresh.</p>
+<section id="read-table-and-check-dimensions" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="read-table-and-check-dimensions"><span class="header-section-number">1</span> Read table and check dimensions</h2>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-2_5cdd34fedeb53ec115c824bbed2f402e">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"./Causal_Data_Science_Data/car_prices.rds"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">print</span>(<span class="fu">dim</span>(df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; [1] 181  22</code></pre>
 </div>
 </div>
+</section>
+<section id="look-at-data" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="look-at-data"><span class="header-section-number">2</span> Look at data</h2>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-3_e6802b7117c4ac40fbf7d485df359ff7">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">summary</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;   aspiration         doornumber          carbody           drivewheel       
+#&gt;  Length:181         Length:181         Length:181         Length:181        
+#&gt;  Class :character   Class :character   Class :character   Class :character  
+#&gt;  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+#&gt;                                                                             
+#&gt;                                                                             
+#&gt;                                                                             
+#&gt;  enginelocation       wheelbase        carlength        carwidth    
+#&gt;  Length:181         Min.   : 86.60   Min.   :141.1   Min.   :60.30  
+#&gt;  Class :character   1st Qu.: 94.50   1st Qu.:166.3   1st Qu.:64.00  
+#&gt;  Mode  :character   Median : 96.50   Median :173.0   Median :65.40  
+#&gt;                     Mean   : 98.21   Mean   :173.3   Mean   :65.74  
+#&gt;                     3rd Qu.:100.40   3rd Qu.:180.2   3rd Qu.:66.50  
+#&gt;                     Max.   :120.90   Max.   :208.1   Max.   :72.30  
+#&gt;    carheight       curbweight    enginetype        cylindernumber    
+#&gt;  Min.   :47.80   Min.   :1488   Length:181         Length:181        
+#&gt;  1st Qu.:52.00   1st Qu.:2122   Class :character   Class :character  
+#&gt;  Median :53.70   Median :2410   Mode  :character   Mode  :character  
+#&gt;  Mean   :53.58   Mean   :2521                                        
+#&gt;  3rd Qu.:55.50   3rd Qu.:2910                                        
+#&gt;  Max.   :59.80   Max.   :4066                                        
+#&gt;    enginesize     fuelsystem          boreratio         stroke    
+#&gt;  Min.   : 61.0   Length:181         Min.   :2.540   Min.   :2.07  
+#&gt;  1st Qu.: 98.0   Class :character   1st Qu.:3.150   1st Qu.:3.08  
+#&gt;  Median :120.0   Mode  :character   Median :3.310   Median :3.23  
+#&gt;  Mean   :127.1                      Mean   :3.325   Mean   :3.23  
+#&gt;  3rd Qu.:141.0                      3rd Qu.:3.590   3rd Qu.:3.40  
+#&gt;  Max.   :326.0                      Max.   :3.940   Max.   :4.17  
+#&gt;  compressionratio   horsepower       peakrpm        citympg     
+#&gt;  Min.   : 7.000   Min.   : 48.0   Min.   :4200   Min.   :13.00  
+#&gt;  1st Qu.: 8.500   1st Qu.: 70.0   1st Qu.:4800   1st Qu.:19.00  
+#&gt;  Median : 9.000   Median : 95.0   Median :5200   Median :24.00  
+#&gt;  Mean   : 8.848   Mean   :106.2   Mean   :5182   Mean   :24.85  
+#&gt;  3rd Qu.: 9.400   3rd Qu.:116.0   3rd Qu.:5500   3rd Qu.:30.00  
+#&gt;  Max.   :11.500   Max.   :288.0   Max.   :6600   Max.   :49.00  
+#&gt;    highwaympg        price      
+#&gt;  Min.   :16.00   Min.   : 5118  
+#&gt;  1st Qu.:25.00   1st Qu.: 7609  
+#&gt;  Median :30.00   Median : 9980  
+#&gt;  Mean   :30.48   Mean   :12999  
+#&gt;  3rd Qu.:34.00   3rd Qu.:16430  
+#&gt;  Max.   :54.00   Max.   :45400</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["aspiration"],"name":[1],"type":["chr"],"align":["left"]},{"label":["doornumber"],"name":[2],"type":["chr"],"align":["left"]},{"label":["carbody"],"name":[3],"type":["chr"],"align":["left"]},{"label":["drivewheel"],"name":[4],"type":["chr"],"align":["left"]},{"label":["enginelocation"],"name":[5],"type":["chr"],"align":["left"]},{"label":["wheelbase"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["carlength"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["carwidth"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["carheight"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["curbweight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["enginetype"],"name":[11],"type":["chr"],"align":["left"]},{"label":["cylindernumber"],"name":[12],"type":["chr"],"align":["left"]},{"label":["enginesize"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["fuelsystem"],"name":[14],"type":["chr"],"align":["left"]},{"label":["boreratio"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["stroke"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["compressionratio"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["horsepower"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["peakrpm"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["citympg"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["highwaympg"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["price"],"name":[22],"type":["dbl"],"align":["right"]}],"data":[{"1":"std","2":"two","3":"convertible","4":"rwd","5":"front","6":"88.6","7":"168.8","8":"64.1","9":"48.8","10":"2548","11":"dohc","12":"four","13":"130","14":"mpfi","15":"3.47","16":"2.68","17":"9.0","18":"111","19":"5000","20":"21","21":"27","22":"13495"},{"1":"std","2":"two","3":"convertible","4":"rwd","5":"front","6":"88.6","7":"168.8","8":"64.1","9":"48.8","10":"2548","11":"dohc","12":"four","13":"130","14":"mpfi","15":"3.47","16":"2.68","17":"9.0","18":"111","19":"5000","20":"21","21":"27","22":"16500"},{"1":"std","2":"two","3":"hatchback","4":"rwd","5":"front","6":"94.5","7":"171.2","8":"65.5","9":"52.4","10":"2823","11":"ohcv","12":"six","13":"152","14":"mpfi","15":"2.68","16":"3.47","17":"9.0","18":"154","19":"5000","20":"19","21":"26","22":"16500"},{"1":"std","2":"four","3":"sedan","4":"fwd","5":"front","6":"99.8","7":"176.6","8":"66.2","9":"54.3","10":"2337","11":"ohc","12":"four","13":"109","14":"mpfi","15":"3.19","16":"3.40","17":"10.0","18":"102","19":"5500","20":"24","21":"30","22":"13950"},{"1":"std","2":"four","3":"sedan","4":"4wd","5":"front","6":"99.4","7":"176.6","8":"66.4","9":"54.3","10":"2824","11":"ohc","12":"five","13":"136","14":"mpfi","15":"3.19","16":"3.40","17":"8.0","18":"115","19":"5500","20":"18","21":"22","22":"17450"},{"1":"std","2":"two","3":"sedan","4":"fwd","5":"front","6":"99.8","7":"177.3","8":"66.3","9":"53.1","10":"2507","11":"ohc","12":"five","13":"136","14":"mpfi","15":"3.19","16":"3.40","17":"8.5","18":"110","19":"5500","20":"19","21":"25","22":"15250"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">glimpse</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Rows: 181
+#&gt; Columns: 22
+#&gt; $ aspiration       &lt;chr&gt; "std", "std", "std", "std", "std", "std", "std", "std…
+#&gt; $ doornumber       &lt;chr&gt; "two", "two", "two", "four", "four", "two", "four", "…
+#&gt; $ carbody          &lt;chr&gt; "convertible", "convertible", "hatchback", "sedan", "…
+#&gt; $ drivewheel       &lt;chr&gt; "rwd", "rwd", "rwd", "fwd", "4wd", "fwd", "fwd", "fwd…
+#&gt; $ enginelocation   &lt;chr&gt; "front", "front", "front", "front", "front", "front",…
+#&gt; $ wheelbase        &lt;dbl&gt; 88.6, 88.6, 94.5, 99.8, 99.4, 99.8, 105.8, 105.8, 105…
+#&gt; $ carlength        &lt;dbl&gt; 168.8, 168.8, 171.2, 176.6, 176.6, 177.3, 192.7, 192.…
+#&gt; $ carwidth         &lt;dbl&gt; 64.1, 64.1, 65.5, 66.2, 66.4, 66.3, 71.4, 71.4, 71.4,…
+#&gt; $ carheight        &lt;dbl&gt; 48.8, 48.8, 52.4, 54.3, 54.3, 53.1, 55.7, 55.7, 55.9,…
+#&gt; $ curbweight       &lt;dbl&gt; 2548, 2548, 2823, 2337, 2824, 2507, 2844, 2954, 3086,…
+#&gt; $ enginetype       &lt;chr&gt; "dohc", "dohc", "ohcv", "ohc", "ohc", "ohc", "ohc", "…
+#&gt; $ cylindernumber   &lt;chr&gt; "four", "four", "six", "four", "five", "five", "five"…
+#&gt; $ enginesize       &lt;dbl&gt; 130, 130, 152, 109, 136, 136, 136, 136, 131, 131, 108…
+#&gt; $ fuelsystem       &lt;chr&gt; "mpfi", "mpfi", "mpfi", "mpfi", "mpfi", "mpfi", "mpfi…
+#&gt; $ boreratio        &lt;dbl&gt; 3.47, 3.47, 2.68, 3.19, 3.19, 3.19, 3.19, 3.19, 3.13,…
+#&gt; $ stroke           &lt;dbl&gt; 2.68, 2.68, 3.47, 3.40, 3.40, 3.40, 3.40, 3.40, 3.40,…
+#&gt; $ compressionratio &lt;dbl&gt; 9.00, 9.00, 9.00, 10.00, 8.00, 8.50, 8.50, 8.50, 8.30…
+#&gt; $ horsepower       &lt;dbl&gt; 111, 111, 154, 102, 115, 110, 110, 110, 140, 160, 101…
+#&gt; $ peakrpm          &lt;dbl&gt; 5000, 5000, 5000, 5500, 5500, 5500, 5500, 5500, 5500,…
+#&gt; $ citympg          &lt;dbl&gt; 21, 21, 19, 24, 18, 19, 19, 19, 17, 16, 23, 23, 21, 2…
+#&gt; $ highwaympg       &lt;dbl&gt; 27, 27, 26, 30, 22, 25, 25, 25, 20, 22, 29, 29, 28, 2…
+#&gt; $ price            &lt;dbl&gt; 13495.00, 16500.00, 16500.00, 13950.00, 17450.00, 152…</code></pre>
+</div>
+</div>
+</section>
+<section id="train-linear-model" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="train-linear-model"><span class="header-section-number">3</span> Train linear model</h2>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-4_6e3e4275bb3ed335bbfa9cea0b7707a5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>lm_all <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> df)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">summary</span>(lm_all)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+#&gt; Call:
+#&gt; lm(formula = price ~ ., data = df)
+#&gt; 
+#&gt; Residuals:
+#&gt;    Min     1Q Median     3Q    Max 
+#&gt;  -5662  -1120      0    798   9040 
+#&gt; 
+#&gt; Coefficients:
+#&gt;                        Estimate Std. Error t value Pr(&gt;|t|)    
+#&gt; (Intercept)          -36269.965  15460.866  -2.346 0.020354 *  
+#&gt; aspirationturbo        1846.206   1041.391   1.773 0.078386 .  
+#&gt; doornumbertwo           242.523    571.929   0.424 0.672172    
+#&gt; carbodyhardtop        -3691.743   1424.825  -2.591 0.010561 *  
+#&gt; carbodyhatchback      -3344.335   1238.359  -2.701 0.007757 ** 
+#&gt; carbodysedan          -2292.820   1356.014  -1.691 0.093043 .  
+#&gt; carbodywagon          -3427.921   1490.285  -2.300 0.022885 *  
+#&gt; drivewheelfwd          -504.564   1076.623  -0.469 0.640030    
+#&gt; drivewheelrwd           -15.446   1268.070  -0.012 0.990299    
+#&gt; enginelocationrear     6643.492   2572.275   2.583 0.010806 *  
+#&gt; wheelbase               -30.197     92.776  -0.325 0.745294    
+#&gt; carlength               -29.740     51.672  -0.576 0.565824    
+#&gt; carwidth                731.819    244.533   2.993 0.003258 ** 
+#&gt; carheight               123.195    134.607   0.915 0.361617    
+#&gt; curbweight                2.612      1.781   1.467 0.144706    
+#&gt; enginetypedohcv       -8541.957   4749.685  -1.798 0.074219 .  
+#&gt; enginetypel             978.748   1786.384   0.548 0.584619    
+#&gt; enginetypeohc          3345.252    933.001   3.585 0.000461 ***
+#&gt; enginetypeohcf          972.919   1625.631   0.598 0.550462    
+#&gt; enginetypeohcv        -6222.322   1236.415  -5.033 1.43e-06 ***
+#&gt; cylindernumberfive   -11724.540   3019.192  -3.883 0.000157 ***
+#&gt; cylindernumberfour   -11549.326   3177.177  -3.635 0.000387 ***
+#&gt; cylindernumbersix     -7151.398   2247.230  -3.182 0.001793 ** 
+#&gt; cylindernumberthree   -4318.929   4688.833  -0.921 0.358545    
+#&gt; cylindernumbertwelve -11122.209   4196.494  -2.650 0.008946 ** 
+#&gt; enginesize              125.934     26.541   4.745 5.00e-06 ***
+#&gt; fuelsystem2bbl          177.136    883.615   0.200 0.841400    
+#&gt; fuelsystemmfi         -3041.018   2576.996  -1.180 0.239934    
+#&gt; fuelsystemmpfi          359.278   1001.529   0.359 0.720326    
+#&gt; fuelsystemspdi        -2543.890   1363.546  -1.866 0.064140 .  
+#&gt; fuelsystemspfi          514.766   2499.229   0.206 0.837107    
+#&gt; boreratio             -1306.740   1642.221  -0.796 0.427516    
+#&gt; stroke                -4527.137    922.732  -4.906 2.49e-06 ***
+#&gt; compressionratio       -737.901    555.960  -1.327 0.186539    
+#&gt; horsepower               10.293     22.709   0.453 0.651035    
+#&gt; peakrpm                   2.526      0.634   3.983 0.000108 ***
+#&gt; citympg                 -90.352    166.647  -0.542 0.588538    
+#&gt; highwaympg              154.858    167.148   0.926 0.355761    
+#&gt; ---
+#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#&gt; 
+#&gt; Residual standard error: 2189 on 143 degrees of freedom
+#&gt; Multiple R-squared:  0.9415, Adjusted R-squared:  0.9264 
+#&gt; F-statistic: 62.21 on 37 and 143 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>All parameters with a p-value of less than 0.05 are statistically relevant.</p>
+</section>
+<section id="regressor-example" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="regressor-example"><span class="header-section-number">4</span> Regressor example</h2>
+<p>The regressor ‘enginesize’ takes on continual data ranging from 61 to 326, as can be seen in the glimpse. The slope is 125.934 meaning if we increase the enginesize by 1, the price increases by 125.934. It is statistically relevant because the p-value is 5e-06 which is less than 0.05 (our assumed alpha).</p>
+</section>
+<section id="adding-new-variable" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="adding-new-variable"><span class="header-section-number">5</span> Adding new variable</h2>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-5_1f0b3ae126213042e561725ea2df9242">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>df<span class="sc">$</span>seat_heating <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a>lm_all <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> df)</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="fu">summary</span>(lm_all)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+#&gt; Call:
+#&gt; lm(formula = price ~ ., data = df)
+#&gt; 
+#&gt; Residuals:
+#&gt;    Min     1Q Median     3Q    Max 
+#&gt;  -5662  -1120      0    798   9040 
+#&gt; 
+#&gt; Coefficients: (1 not defined because of singularities)
+#&gt;                        Estimate Std. Error t value Pr(&gt;|t|)    
+#&gt; (Intercept)          -36269.965  15460.866  -2.346 0.020354 *  
+#&gt; aspirationturbo        1846.206   1041.391   1.773 0.078386 .  
+#&gt; doornumbertwo           242.523    571.929   0.424 0.672172    
+#&gt; carbodyhardtop        -3691.743   1424.825  -2.591 0.010561 *  
+#&gt; carbodyhatchback      -3344.335   1238.359  -2.701 0.007757 ** 
+#&gt; carbodysedan          -2292.820   1356.014  -1.691 0.093043 .  
+#&gt; carbodywagon          -3427.921   1490.285  -2.300 0.022885 *  
+#&gt; drivewheelfwd          -504.564   1076.623  -0.469 0.640030    
+#&gt; drivewheelrwd           -15.446   1268.070  -0.012 0.990299    
+#&gt; enginelocationrear     6643.492   2572.275   2.583 0.010806 *  
+#&gt; wheelbase               -30.197     92.776  -0.325 0.745294    
+#&gt; carlength               -29.740     51.672  -0.576 0.565824    
+#&gt; carwidth                731.819    244.533   2.993 0.003258 ** 
+#&gt; carheight               123.195    134.607   0.915 0.361617    
+#&gt; curbweight                2.612      1.781   1.467 0.144706    
+#&gt; enginetypedohcv       -8541.957   4749.685  -1.798 0.074219 .  
+#&gt; enginetypel             978.748   1786.384   0.548 0.584619    
+#&gt; enginetypeohc          3345.252    933.001   3.585 0.000461 ***
+#&gt; enginetypeohcf          972.919   1625.631   0.598 0.550462    
+#&gt; enginetypeohcv        -6222.322   1236.415  -5.033 1.43e-06 ***
+#&gt; cylindernumberfive   -11724.540   3019.192  -3.883 0.000157 ***
+#&gt; cylindernumberfour   -11549.326   3177.177  -3.635 0.000387 ***
+#&gt; cylindernumbersix     -7151.398   2247.230  -3.182 0.001793 ** 
+#&gt; cylindernumberthree   -4318.929   4688.833  -0.921 0.358545    
+#&gt; cylindernumbertwelve -11122.209   4196.494  -2.650 0.008946 ** 
+#&gt; enginesize              125.934     26.541   4.745 5.00e-06 ***
+#&gt; fuelsystem2bbl          177.136    883.615   0.200 0.841400    
+#&gt; fuelsystemmfi         -3041.018   2576.996  -1.180 0.239934    
+#&gt; fuelsystemmpfi          359.278   1001.529   0.359 0.720326    
+#&gt; fuelsystemspdi        -2543.890   1363.546  -1.866 0.064140 .  
+#&gt; fuelsystemspfi          514.766   2499.229   0.206 0.837107    
+#&gt; boreratio             -1306.740   1642.221  -0.796 0.427516    
+#&gt; stroke                -4527.137    922.732  -4.906 2.49e-06 ***
+#&gt; compressionratio       -737.901    555.960  -1.327 0.186539    
+#&gt; horsepower               10.293     22.709   0.453 0.651035    
+#&gt; peakrpm                   2.526      0.634   3.983 0.000108 ***
+#&gt; citympg                 -90.352    166.647  -0.542 0.588538    
+#&gt; highwaympg              154.858    167.148   0.926 0.355761    
+#&gt; seat_heatingTRUE             NA         NA      NA       NA    
+#&gt; ---
+#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#&gt; 
+#&gt; Residual standard error: 2189 on 143 degrees of freedom
+#&gt; Multiple R-squared:  0.9415, Adjusted R-squared:  0.9264 
+#&gt; F-statistic: 62.21 on 37 and 143 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The model recognized that all observations for this new regressor are the same and therefore do not influence the resulting price. The coefficients are not available (NA) and therefore not included in the model.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
