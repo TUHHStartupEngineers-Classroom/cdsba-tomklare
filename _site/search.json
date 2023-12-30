@@ -18,7 +18,7 @@
     "href": "content/01_journal/02_statistics.html",
     "title": "Statistical Concepts",
     "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
+    "text": "expected_value_income &lt;- mean(random_vars$income)\nexpected_value_age &lt;- mean(random_vars$age)\n\nsd_income &lt;- sd(random_vars$income)\nsd_age &lt;- sd(random_vars$age)\n\nvar_income &lt;- var(random_vars$income)\nvar_age &lt;- var(random_vars$age)\n\ncat(\"Expected Value (Income):\", expected_value_income, \"\\n\")\n\n#&gt; Expected Value (Income): 3510.731\n\ncat(\"Expected Value (Age):\", expected_value_age, \"\\n\\n\")\n\n#&gt; Expected Value (Age): 33.471\n\ncat(\"Standard Deviation (Income):\", sd_income, \"\\n\")\n\n#&gt; Standard Deviation (Income): 2936.945\n\ncat(\"Standard Deviation (Age):\", sd_age, \"\\n\\n\")\n\n#&gt; Standard Deviation (Age): 18.45556\n\ncat(\"Variance (Income):\", var_income, \"\\n\")\n\n#&gt; Variance (Income): 8625646\n\ncat(\"Variance (Age):\", var_age, \"\\n\")\n\n#&gt; Variance (Age): 340.6078"
   },
   {
     "objectID": "content/01_journal/04_causality.html",
@@ -67,7 +67,7 @@
     "href": "content/01_journal/01_probability.html",
     "title": "Probability Theory 1",
     "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh.\nThis is a .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "1 Assignment 1\n\np_ts &lt;- 0.3*0.2\np_tsn &lt;- 0.6*0.7\np_tns &lt;- 0.3*0.8\np_tnsn &lt;- 0.7*0.4\n\nprint(p_ts)\n\n#&gt; [1] 0.06\n\nprint(p_tsn)\n\n#&gt; [1] 0.42\n\nprint(p_tns)\n\n#&gt; [1] 0.24\n\nprint(p_tnsn)\n\n#&gt; [1] 0.28\n\nprint(p_ts + p_tsn + p_tns + p_tnsn)\n\n#&gt; [1] 1\n\n\n\n\n2 Assignment 2\n\np_3 &lt;- 0.5 / 100\np_2m &lt;- (7.3 + 0.5 + 3.3 + 8.8) / 100\np_1 &lt;- 1 - p_2m\n\nprint(p_3)\n\n#&gt; [1] 0.005\n\nprint(p_2m)\n\n#&gt; [1] 0.199\n\nprint(p_1)\n\n#&gt; [1] 0.801\n\n\n\n\n3 Assignment 3\n\np_bifa &lt;- 0.97\np_bifan &lt;- 0.01\np_a &lt;- 0.04\n\np_b &lt;- p_bifa * p_a + p_bifan * (1-p_a)\np_anifb &lt;- p_bifan * (1-p_a) / p_b    # 0.2\np_aifb &lt;- p_bifa * p_a / p_b          # 0.8\n\ncat(paste(\"These results show that in case the alarm is triggered, there is a possibility of about \", (p_anifb *100), \"% that the product is flawless and a probability of \", (p_aifb *100),\"% that the product is faulty.\"))\n\n#&gt; These results show that in case the alarm is triggered, there is a possibility of about  19.8347107438017 % that the product is flawless and a probability of  80.1652892561983 % that the product is faulty."
   },
   {
     "objectID": "content/01_journal/01_probability.html#header-2",
@@ -88,6 +88,55 @@
     "href": "content/01_journal/10_rdd.html",
     "title": "Regression Discontinuity",
     "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
+    "text": "Note\n\n\n\nYou can delete everything in here and start fresh.\nThis is a .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "content/01_journal/10_rdd.html#header-2",
+    "href": "content/01_journal/10_rdd.html#header-2",
+    "title": "Regression Discontinuity",
+    "section": "2.1 Header 2",
+    "text": "2.1 Header 2\n\nHeader 3\n\nHeader 4\n\nHeader 5\n\nHeader 6"
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#header-2",
+    "href": "content/01_journal/02_statistics.html#header-2",
+    "title": "Statistical Concepts",
+    "section": "2.1 Header 2",
+    "text": "2.1 Header 2\n\nHeader 3\n\nHeader 4\n\nHeader 5\n\nHeader 6"
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#for-each-variable-compute-the-following-values.",
+    "href": "content/01_journal/02_statistics.html#for-each-variable-compute-the-following-values.",
+    "title": "Statistical Concepts",
+    "section": "",
+    "text": "expected_value_income &lt;- mean(random_vars$income)\nexpected_value_age &lt;- mean(random_vars$age)\n\nsd_income &lt;- sd(random_vars$income)\nsd_age &lt;- sd(random_vars$age)\n\nvar_income &lt;- var(random_vars$income)\nvar_age &lt;- var(random_vars$age)\n\ncat(\"Expected Value (Income):\", expected_value_income, \"\\n\")\n\n#&gt; Expected Value (Income): 3510.731\n\ncat(\"Expected Value (Age):\", expected_value_age, \"\\n\\n\")\n\n#&gt; Expected Value (Age): 33.471\n\ncat(\"Standard Deviation (Income):\", sd_income, \"\\n\")\n\n#&gt; Standard Deviation (Income): 2936.945\n\ncat(\"Standard Deviation (Age):\", sd_age, \"\\n\\n\")\n\n#&gt; Standard Deviation (Age): 18.45556\n\ncat(\"Variance (Income):\", var_income, \"\\n\")\n\n#&gt; Variance (Income): 8625646\n\ncat(\"Variance (Age):\", var_age, \"\\n\")\n\n#&gt; Variance (Age): 340.6078"
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#explain-if-it-makes-sense-to-compare-the-standard-deviations.",
+    "href": "content/01_journal/02_statistics.html#explain-if-it-makes-sense-to-compare-the-standard-deviations.",
+    "title": "Statistical Concepts",
+    "section": "2 Explain, if it makes sense to compare the standard deviations.",
+    "text": "2 Explain, if it makes sense to compare the standard deviations.\nNo, because the units are different."
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#then-examine-the-relationship-between-both-variables-and-compute",
+    "href": "content/01_journal/02_statistics.html#then-examine-the-relationship-between-both-variables-and-compute",
+    "title": "Statistical Concepts",
+    "section": "3 Then, examine the relationship between both variables and compute:",
+    "text": "3 Then, examine the relationship between both variables and compute:\n\ncovariance &lt;- cov(random_vars)\ncorrelation &lt;- cor(random_vars)\n\ncat(\"Covariance:\", covariance[1,2], \"\\n\")\n\n#&gt; Covariance: 29700.15\n\ncat(\"Correlation:\", correlation[1,2], \"\\n\")\n\n#&gt; Correlation: 0.5479432"
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#what-measure-is-easier-to-interpret-please-discuss-your-interpretation.",
+    "href": "content/01_journal/02_statistics.html#what-measure-is-easier-to-interpret-please-discuss-your-interpretation.",
+    "title": "Statistical Concepts",
+    "section": "4 What measure is easier to interpret? Please discuss your interpretation.",
+    "text": "4 What measure is easier to interpret? Please discuss your interpretation.\nCorrelation is better to interpret, because it is defined between [-1, 1] and therefore unit less. That means, e.g. if the correlation goes against 1, it approaches the maximum. This cannot be seen with covariance."
+  },
+  {
+    "objectID": "content/01_journal/02_statistics.html#compute-the-conditional-expected-value-for",
+    "href": "content/01_journal/02_statistics.html#compute-the-conditional-expected-value-for",
+    "title": "Statistical Concepts",
+    "section": "5 Compute the conditional expected value for:",
+    "text": "5 Compute the conditional expected value for:\n\nexpected_value_income_under18 &lt;- mean(random_vars$income[random_vars$age&lt;=18])\nexpected_value_income_18to65 &lt;- mean(random_vars$income[random_vars$age&gt;18 & random_vars$age&lt;65])\nexpected_value_income_over65 &lt;- mean(random_vars$income[random_vars$age&gt;=65])\n\ncat(\"Expected Income under 18:\", expected_value_income_under18, \"\\n\")\n\n#&gt; Expected Income under 18: 389.6074\n\ncat(\"Expected Income between 18 and 65:\", expected_value_income_18to65, \"\\n\")\n\n#&gt; Expected Income between 18 and 65: 4737.609\n\ncat(\"Expected Income over 65:\", expected_value_income_over65, \"\\n\")\n\n#&gt; Expected Income over 65: 1777.237"
   }
 ]

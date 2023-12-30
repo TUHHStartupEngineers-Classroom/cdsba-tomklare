@@ -2,6 +2,54 @@
 title: "Statistical Concepts"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+````{r}
+#| include: false
+random_vars <- readRDS("./Causal_Data_Science_Data/random_vars.rds")
+````
+
+## For each variable, compute the following values.
+````{r}
+expected_value_income <- mean(random_vars$income)
+expected_value_age <- mean(random_vars$age)
+
+sd_income <- sd(random_vars$income)
+sd_age <- sd(random_vars$age)
+
+var_income <- var(random_vars$income)
+var_age <- var(random_vars$age)
+
+cat("Expected Value (Income):", expected_value_income, "\n")
+cat("Expected Value (Age):", expected_value_age, "\n\n")
+
+cat("Standard Deviation (Income):", sd_income, "\n")
+cat("Standard Deviation (Age):", sd_age, "\n\n")
+
+cat("Variance (Income):", var_income, "\n")
+cat("Variance (Age):", var_age, "\n")
+````
+
+## Explain, if it makes sense to compare the standard deviations.
+No, because the units are different.
+
+## Then, examine the relationship between both variables and compute:
+````{r}
+covariance <- cov(random_vars)
+correlation <- cor(random_vars)
+
+cat("Covariance:", covariance[1,2], "\n")
+cat("Correlation:", correlation[1,2], "\n")
+````
+
+## What measure is easier to interpret? Please discuss your interpretation.
+Correlation is better to interpret, because it is defined between [-1, 1] and therefore unit less. That means, e.g. if the correlation goes against 1, it approaches the maximum. This cannot be seen with covariance.
+
+## Compute the conditional expected value for:
+````{r}
+expected_value_income_under18 <- mean(random_vars$income[random_vars$age<=18])
+expected_value_income_18to65 <- mean(random_vars$income[random_vars$age>18 & random_vars$age<65])
+expected_value_income_over65 <- mean(random_vars$income[random_vars$age>=65])
+
+cat("Expected Income under 18:", expected_value_income_under18, "\n")
+cat("Expected Income between 18 and 65:", expected_value_income_18to65, "\n")
+cat("Expected Income over 65:", expected_value_income_over65, "\n")
+````
