@@ -2,6 +2,71 @@
 title: "Directed Acyclic Graphs"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+
+## Parking spot DAG
+```{r}
+#| warnings: false
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+
+
+schooling_2 <- dagify(
+  parking_spots ~ location,
+  sales ~ location,
+  sales ~ parking_spots,
+  coords = list(x = c(parking_spots = 1, location = 2, sales = 3),
+                y = c(parking_spots = 1, location = 2, sales = 1))
+)
+
+# Plot DAG
+ggdag(schooling_2, text = F) +
+  geom_dag_point(color = "blue") +
+  geom_dag_text(color = NA) +
+  geom_dag_edges(edge_color = "black") +
+  geom_dag_label_repel(aes(label = name))
+
+```
+
+## Regression models
+```{r}
+#| warnings: false
+df <- readRDS("./Causal_Data_Science_Data/customer_sat.rds")
+
+lm <- lm(satisfaction ~ follow_ups, data = df)
+summary(lm)
+
+lm_all <- lm(satisfaction ~ follow_ups + subscription, data = df)
+summary(lm_all)
+```
+
+## Explanation
+In the first model the coefficient for follow ups is -3.3, which means that for every follow up call the satisfaction goes down.
+In the second model the coefficient is 2.19, meaning the satisfaction goes up 2.19 points per follow up. 
+This makes more sense, as a follow up call is unlikely to decrease customer satisfaction. The reason for this is, that model 2 also takes subscriptions into account.
+
+## Plot data
+````{r}
+#| warnings: false
+#| 
+#| # Not conditioning on subscription
+data_not_cond <- ggplot(df, aes(x = follow_ups, y = satisfaction)) +
+  geom_point(alpha = .8) +
+  stat_smooth(method = "lm", se = F)
+
+data_not_cond
+````
+
+````{r}
+#| warnings: false
+
+# Conditioning on subscription  
+data_cond <- ggplot(df, aes(x = follow_ups, y = satisfaction, color = subscription)) +
+  geom_point(alpha = .8) +
+  stat_smooth(method = "lm", se = F) +
+  theme(legend.position = "right")
+
+data_cond
+````
+
+

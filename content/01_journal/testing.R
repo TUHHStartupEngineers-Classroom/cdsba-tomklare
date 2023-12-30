@@ -1,17 +1,26 @@
 library(tidyverse)
+library(dagitty)
+library(ggdag)
 
-year <- 2000:2009
-# *3-6.2
-data_divorce <- c(4.97, 4.68, 4.62, 4.45, 4.32, 4.14, 4.2, 4.2, 4.2, 3.1)
-data_margarine <- c(8.2, 7, 6.5, 5.3, 5.3, 4, 4.6, 4.5, 4.2, 3.7)/2.8+1.9
+df <- readRDS("./content/01_journal/Causal_Data_Science_Data/customer_sat.rds")
 
-data <- data.frame(year, data_divorce, data_margarine)
+lm <- lm(satisfaction ~ follow_ups, data = df)
+summary(lm_all)
 
-limits = c(3.96, 5)
-limits = c(2, 9)
+lm_all <- lm(satisfaction ~ follow_ups + subscription, data = df)
+summary(lm_all)
 
-ggplot(data, aes(x = year)) +
-  geom_line(aes(y = data_divorce), color = "red", linetype = "solid", linewidth = 1) +
-  geom_line(aes(y = data_margarine), color = "black", linetype = "solid", linewidth = 1) +
-  scale_y_continuous(name = "Divorce rate in Maine\nper 1000", sec.axis = sec_axis(~.*2.8-1.9, name = "Per capita consumption of margarine\nlbs")) +
-  labs(title = "Divorce rate in Maine \ncorrelates with \nPer capita consumption of margarine", x = "year")
+# Not conditioning on subscription
+data_not_cond <- ggplot(df, aes(x = follow_ups, y = satisfaction)) +
+  geom_point(alpha = .8) +
+  stat_smooth(method = "lm", se = F)
+
+# Conditioning on education  
+data_cond <- ggplot(df, aes(x = follow_ups, y = satisfaction, color = subscription)) +
+  geom_point(alpha = .8) +
+  stat_smooth(method = "lm", se = F) +
+  theme(legend.position = "right")
+
+# Plot both plots
+data_not_cond
+#data_cond
