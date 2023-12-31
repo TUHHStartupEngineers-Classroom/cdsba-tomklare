@@ -1,90 +1,16 @@
-library(tidyverse)
+library(rddensity)
 library(dagitty)
 library(ggdag)
-library(MatchIt)
 
-df <- readRDS("./content/01_journal/Causal_Data_Science_Data/membership.rds")
+df <- readRDS("./content/01_journal/Causal_Data_Science_Data/shipping.rds")
 
 head(df)
-glimpse(df)
 
-# look at correlation between parameters
-print(cor(df))
+c0 = 30
 
-dag <- dagify(
-  pre_avg_purch ~ age,
-  pre_avg_purch ~ card,
-  avg_purch ~ age,
-  avg_purch ~ card,
-  avg_purch ~ pre_avg_purch,
-  card ~ age,
-  coords = list(x = c(age = 1, card = 2, pre_avg_purch = 1, avg_purch = 2),
-                y = c(age = 2, card = 2, pre_avg_purch = 1, avg_purch = 1))
-)
-
-# Plot DAG
-ggdag(dag, text = F) +
-  geom_dag_point(color = "blue") +
-  geom_dag_text(color = NA) +
-  geom_dag_edges(edge_color = "black") +
-  geom_dag_label_repel(aes(label = name))
-
-
-# Naive estimate of the ATE
-model_naive <- lm(avg_purch ~ card, data = df)
-summary(model_naive)
-
-# CEM estimation
-cem <- matchit(card ~ age + pre_avg_purch + sex,
-               data = df, 
-               method = 'cem', 
-               estimand = 'ATE')
-
-summary(cem)
-
-df_cem <- match.data(cem)
-
-model_cem <- lm(avg_purch ~ card, data = df_cem, weights = weights)
-summary(model_cem)
-
-
-# Nearest Neighbour
-nn <- matchit(card ~ age + pre_avg_purch + sex,
-               data = df, 
-               method = "nearest", 
-               distance = "mahalanobis",
-               replace = T)
-
-summary(nn)
-
-df_nn <- match.data(nn)
-
-model_nn <- lm(avg_purch ~ card, data = df_nn, weights = weights)
-summary(model_nn)
-
-
-# Propensity scores
-model_prop <- glm(card ~ age + pre_avg_purch + sex,
-                  data = df,
-                  family = binomial(link = "logit"))
-summary(model_prop)
-
-df_aug <- df %>% mutate(propensity = predict(model_prop, type = "response"))
-
-df_ipw <- df_aug %>% mutate(
-  ipw = (card/propensity) + ((1-card) / (1-propensity)))
-
-df_ipw %>% 
-  select(card, age, sex, pre_avg_purch, propensity, ipw)
-
-model_ipw <- lm(avg_purch ~ card,
-                data = df_ipw, 
-                weights = ipw)
-summary(model_ipw)
-
-# Summary of naive and matching methods
-modelsummary::modelsummary(list("Naive" = model_naive,
-                                "CEM1"  = model_cem,
-                                "NN"    = model_nn,
-                                "IPW1"  = model_ipw))
-
+ggplot(df, aes(x = purchase_amount)) +
+  geom_histogram(binwidth = 4, color = "white", boundary = c0, alpha = .6) +
+  geom_vline(xintercept = c0, color = "red") +
+  xlab("Days since last purchase") +
+  ylab("Number of customers") +
+  theme(legend.title = element_blank())

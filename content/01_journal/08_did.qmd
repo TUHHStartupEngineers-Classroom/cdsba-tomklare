@@ -2,6 +2,55 @@
 title: "Difference-in-Differences"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+## Manually compute differences
+```{r}
+#| warning: false
+
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+
+df <- readRDS("./Causal_Data_Science_Data/hospdd.rds")
+
+# Manually compute differences
+# Step 1: Difference between treatment and control group BEFORE treatment
+before_control <- df[df$hospital>18, ] %>%
+  filter(month < 4) %>% 
+  pull(satis) %>% 
+  mean()
+
+before_treatment <- df[df$hospital<=18, ] %>%
+  filter(month < 4) %>% 
+  pull(satis) %>% 
+  mean()
+
+diff_before <- before_treatment - before_control
+
+# Step 2: Difference between treatment and control group AFTER treatment
+after_control <- df[df$hospital>18, ] %>%
+  filter(month >= 4) %>% 
+  pull(satis) %>% 
+  mean()
+
+after_treatment <- df[df$hospital<=18, ] %>%
+  filter(month >= 4) %>% 
+  pull(satis) %>% 
+  mean()
+
+diff_after <- after_treatment - after_control
+
+# Step 3: Difference-in-differences.
+diff_diff <- diff_after - diff_before
+sprintf("Estimate: %.2f", diff_diff)
+
+```
+
+## Regression model
+```{r}
+lm <- lm(satis ~ procedure * month + as.factor(month) + as.factor(hospital), data = df)
+summary(lm)
+```
+Using factors for hospital and month parameters helps to include fixed effects. 
+These fixed effects help to control time-invariant characteristics between the treatment and control group. 
+
+As can be seen, the two calculated values for the treatment effect are pretty similar.

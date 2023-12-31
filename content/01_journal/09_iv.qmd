@@ -2,6 +2,60 @@
 title: "Instrumental Variables"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+
+## DAG
+```{r}
+#| warning: false
+
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+library(estimatr)
+
+df <- readRDS("./Causal_Data_Science_Data/rand_enc.rds")
+
+dag <- dagify(
+  
+  time_spent ~ unobserved,
+  time_spent ~ used_ftr,
+  used_ftr ~ rand_enc,
+  used_ftr ~ unobserved,
+  coords = list(x = c(used_ftr = 1, time_spent = 3, rand_enc = 0, unobserved = 2),
+                y = c(used_ftr = 1, time_spent = 1, rand_enc = 1, unobserved = 2))
+)
+
+# Plot DAG
+ggdag(dag, text = F) +
+  geom_dag_point(color = "blue") +
+  geom_dag_text(color = NA) +
+  geom_dag_edges(edge_color = "black") +
+  geom_dag_label_repel(aes(label = name))
+
+```
+
+
+## Naive estimate
+```{r}
+# Naive estimate
+lm_naive <- lm(time_spent ~ used_ftr, data = df)
+summary(lm_naive)
+
+```
+
+
+## Correlations
+```{r}
+# Display correlations
+print(cor(df))
+```
+Using IV is adequate, because the instrumental variable rand_enc is somewhat correlated to the treatment variable. This means the instrumental relevance is satisfied. It can therefore help to display the effect of the unknown variables. As for the other assumptions, they should be satisfied but we cannot be a 100% certain.
+
+## IV
+```{r}
+# IV estimate using 2SLS
+iv_model <- iv_robust(time_spent ~ used_ftr | rand_enc, data = df)
+
+# Display the IV estimate
+summary(iv_model)
+```
+The treatment effect for the iv model is slightly higher than the biased model. That means there is a downward bias, but it is rather small.

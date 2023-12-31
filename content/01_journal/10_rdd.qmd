@@ -2,96 +2,203 @@
 title: "Regression Discontinuity"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
-
-This is a `.qmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-# Text Formatting
-
-*italics* and **bold**
-
-superscript^2^ / subscript~2~
-
-~~strikethrough~~
-
-`verbatim code`
-
-> Blockquote
-
-# Headings
-
-## Header 2
-### Header 3
-#### Header 4
-##### Header 5
-###### Header 6
-
-# Links & Images
-
-<https://quarto.org>
-
-[Quarto](https://quarto.org)
-
-![Caption](../../assets/img/elephant.png)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org "An elephant")
-
-
-# Lists
-
-* unordered list
-    + sub-item 1
-    + sub-item 2
-        - sub-sub-item 1
-        
-*   item 2
-
-    Continued (indent 4 spaces)
-    
-    
-1. ordered list
-2. item 2
-    i) sub-item 1
-         A.  sub-sub-item 1
-         
-(@)  A list whose numbering
-
-continues after
-
-(@)  an interruption
-
-# Tables
-
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
-|    1  |    1 |     1   |     1  |
-
-# Source Code
-
-Use ``` to delimit blocks of source code:
-
-```
-code
-```
-
-Add a language to syntax highlight code blocks:
-
+## Normal bandwith   
 ```{r}
-1 + 1
+#| warning: false
+
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+
+
+df <- readRDS("./Causal_Data_Science_Data/coupon.rds")
+
+# Define cut-off
+c0 <- 60
+
+
+bw <- c0 + c(-5, 5)
+
+# Subsets below and above threshold in specified bandwidth
+df_bw_below <- df %>% filter(days_since_last >= bw[1] & days_since_last < c0)
+df_bw_above <- df %>% filter(days_since_last >= c0 & days_since_last <= bw[2])
+
+# Alternative way to define tables
+# df_bw_below <- df %>% filter(days_since_last >= bw[1], days_since_last  < c0)
+# df_bw_above <- df %>% filter(days_since_last >= c0, days_since_last <= bw[2])
+
+df_bw <- bind_rows(df_bw_above, df_bw_below)
+#dim(df_bw)
+
+# [3.2] Local Average treatment effect (LATE) ----
+# Extract values for vertical lines to visualize local average treatment effect
+model_bw_below <- lm(purchase_after ~ days_since_last, df_bw_below)
+model_bw_above <- lm(purchase_after ~ days_since_last, df_bw_above)
+
+y0 <- predict(model_bw_below, tibble(days_since_last = c0))
+y1 <- predict(model_bw_above, tibble(days_since_last = c0))
+
+late <- y1 - y0
+#sprintf("LATE: %.2f", late)
+
+lm_bw <- lm(purchase_after ~ days_since_last_centered + coupon, df_bw)
+#summary(lm_bw)
+
+# Minimum and maximum for y-axis limits
+min_y <- min(df_bw$purchase_after)
+max_y <- max(df_bw$purchase_after)
+
+# Add lines for vertical distance and change limits of x-axis.
+dep_var_bw <- 
+  ggplot(df_bw, aes(x = days_since_last, y = purchase_after, color = coupon)) +
+  geom_vline(xintercept = c0, color = "blue", linewidth = 2) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(data = df_bw_below, method = "lm", se = F, linewidth = 2) +
+  geom_smooth(data = df_bw_above, method = "lm", se = F, linewidth = 2) +
+  geom_segment(aes(x = c0, xend = bw[2], y = y0, yend = y0),
+               linetype = "dotted", color = "blue") +
+  geom_segment(aes(x = bw[1], xend = c0, y = y1, yend = y1),
+               linetype = "dotted", color = "blue") +
+  annotate("text", x = c0+2, y = mean(c(y1, y0)-2),
+           label = sprintf("Difference: %.2f", (y1 - y0)),
+           color = "blue", fontface = 2) +
+  scale_y_continuous(limits = c(min_y, max_y)) + 
+  scale_color_discrete(labels = c("No coupon", "Coupon")) +
+  xlab("Days since last purchase") +
+  ylab("Purchase after coupon assignment") +
+  theme(legend.title = element_blank())
+dep_var_bw
 ```
 
+## Double bandwidth
 ```{r}
-cars
+
+
+bw <- c0 + c(-5, 5)*2
+
+# Subsets below and above threshold in specified bandwidth
+df_bw_below <- df %>% filter(days_since_last >= bw[1] & days_since_last < c0)
+df_bw_above <- df %>% filter(days_since_last >= c0 & days_since_last <= bw[2])
+
+# Alternative way to define tables
+# df_bw_below <- df %>% filter(days_since_last >= bw[1], days_since_last  < c0)
+# df_bw_above <- df %>% filter(days_since_last >= c0, days_since_last <= bw[2])
+
+df_bw <- bind_rows(df_bw_above, df_bw_below)
+#dim(df_bw)
+
+# [3.2] Local Average treatment effect (LATE) ----
+# Extract values for vertical lines to visualize local average treatment effect
+model_bw_below <- lm(purchase_after ~ days_since_last, df_bw_below)
+model_bw_above <- lm(purchase_after ~ days_since_last, df_bw_above)
+
+y0 <- predict(model_bw_below, tibble(days_since_last = c0))
+y1 <- predict(model_bw_above, tibble(days_since_last = c0))
+
+late <- y1 - y0
+#sprintf("LATE: %.2f", late)
+
+lm_bw <- lm(purchase_after ~ days_since_last_centered + coupon, df_bw)
+#summary(lm_bw)
+
+# Minimum and maximum for y-axis limits
+min_y <- min(df_bw$purchase_after)
+max_y <- max(df_bw$purchase_after)
+
+# Add lines for vertical distance and change limits of x-axis.
+dep_var_bw <- 
+  ggplot(df_bw, aes(x = days_since_last, y = purchase_after, color = coupon)) +
+  geom_vline(xintercept = c0, color = "blue", linewidth = 2) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(data = df_bw_below, method = "lm", se = F, linewidth = 2) +
+  geom_smooth(data = df_bw_above, method = "lm", se = F, linewidth = 2) +
+  geom_segment(aes(x = c0, xend = bw[2], y = y0, yend = y0),
+               linetype = "dotted", color = "blue") +
+  geom_segment(aes(x = bw[1], xend = c0, y = y1, yend = y1),
+               linetype = "dotted", color = "blue") +
+  annotate("text", x = c0+2, y = mean(c(y1, y0)-2),
+           label = sprintf("Difference: %.2f", (y1 - y0)),
+           color = "blue", fontface = 2) +
+  scale_y_continuous(limits = c(min_y, max_y)) + 
+  scale_color_discrete(labels = c("No coupon", "Coupon")) +
+  xlab("Days since last purchase") +
+  ylab("Purchase after coupon assignment") +
+  theme(legend.title = element_blank())
+dep_var_bw
 ```
 
+
+## Half bandwidth
 ```{r}
-plot(cars)
+bw <- c0 + c(-5, 5)/2
+
+# Subsets below and above threshold in specified bandwidth
+df_bw_below <- df %>% filter(days_since_last >= bw[1] & days_since_last < c0)
+df_bw_above <- df %>% filter(days_since_last >= c0 & days_since_last <= bw[2])
+
+# Alternative way to define tables
+# df_bw_below <- df %>% filter(days_since_last >= bw[1], days_since_last  < c0)
+# df_bw_above <- df %>% filter(days_since_last >= c0, days_since_last <= bw[2])
+
+df_bw <- bind_rows(df_bw_above, df_bw_below)
+#dim(df_bw)
+
+# [3.2] Local Average treatment effect (LATE) ----
+# Extract values for vertical lines to visualize local average treatment effect
+model_bw_below <- lm(purchase_after ~ days_since_last, df_bw_below)
+model_bw_above <- lm(purchase_after ~ days_since_last, df_bw_above)
+
+y0 <- predict(model_bw_below, tibble(days_since_last = c0))
+y1 <- predict(model_bw_above, tibble(days_since_last = c0))
+
+late <- y1 - y0
+#sprintf("LATE: %.2f", late)
+
+lm_bw <- lm(purchase_after ~ days_since_last_centered + coupon, df_bw)
+#summary(lm_bw)
+
+# Minimum and maximum for y-axis limits
+min_y <- min(df_bw$purchase_after)
+max_y <- max(df_bw$purchase_after)
+
+# Add lines for vertical distance and change limits of x-axis.
+dep_var_bw <- 
+  ggplot(df_bw, aes(x = days_since_last, y = purchase_after, color = coupon)) +
+  geom_vline(xintercept = c0, color = "blue", linewidth = 2) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(data = df_bw_below, method = "lm", se = F, linewidth = 2) +
+  geom_smooth(data = df_bw_above, method = "lm", se = F, linewidth = 2) +
+  geom_segment(aes(x = c0, xend = bw[2], y = y0, yend = y0),
+               linetype = "dotted", color = "blue") +
+  geom_segment(aes(x = bw[1], xend = c0, y = y1, yend = y1),
+               linetype = "dotted", color = "blue") +
+  annotate("text", x = c0+2, y = mean(c(y1, y0)-2),
+           label = sprintf("Difference: %.2f", (y1 - y0)),
+           color = "blue", fontface = 2) +
+  scale_y_continuous(limits = c(min_y, max_y)) + 
+  scale_color_discrete(labels = c("No coupon", "Coupon")) +
+  xlab("Days since last purchase") +
+  ylab("Purchase after coupon assignment") +
+  theme(legend.title = element_blank())
+dep_var_bw
 ```
+The model is somewhat stable, but mostly closer to the cut-off point.
+
+## Shipping campaign
+```{r}
+library(rddensity)
+
+df <- readRDS("./Causal_Data_Science_Data/shipping.rds")
+
+head(df)
+
+c0 = 30
+
+ggplot(df, aes(x = purchase_amount)) +
+  geom_histogram(binwidth = 4, color = "white", boundary = c0, alpha = .6) +
+  geom_vline(xintercept = c0, color = "red") +
+  xlab("purchase amount") +
+  theme(legend.title = element_blank())
+
+```
+No, it is not a good idea to use purchase amount as a running variable with a cut-off at 30€, because there is a big leap and the function is not continuous in this point. This is likely due to the fact that most people wanted to reach the free shipping amount.
