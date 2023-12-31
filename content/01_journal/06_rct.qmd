@@ -2,6 +2,68 @@
 title: "Randomized Controlled Trials"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+## Covariate plots
+```{r}
+#| warning: false
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+
+df <- readRDS("./Causal_Data_Science_Data/abtest_online.rds")
+
+# head(df)
+# glimpse(df)
+
+
+ggplot(df, 
+       aes(x = chatbot, 
+           y = previous_visit, 
+           color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "previous_visit", title = "Difference in previous visits")
+
+ggplot(df, 
+       aes(x = chatbot, 
+           y = mobile_device, 
+           color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "mobile_device", title = "Difference in mobile devices")
+
+ggplot(df, 
+       aes(x = chatbot, 
+           y = purchase_amount, 
+           color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "purchase_amount", title = "Difference in outcome")
+```
+
+## Regression model
+```{r}
+lm <- lm(purchase_amount ~ chatbot + mobile_device + previous_visit, data = df)
+summary(lm)
+```
+
+## Sub-group regression model for mobile devices
+```{r}
+lm_sub <- lm(purchase_amount ~ chatbot * mobile_device + previous_visit, data = df)
+summary(lm_sub)
+```
+
+## Logistic regression model 
+```{r}
+lm_log <- glm(purchase ~ chatbot + mobile_device + previous_visit, data = df, family = "binomial")
+summary(lm_log)
+```
+The coefficients in logistical regression are log-odds. That means we have to exponentiate them to get the real odds. In this case exp(-0.969) = 0.38. Therefore, if chatbot is true, the odds are 38% higher that something is bought.

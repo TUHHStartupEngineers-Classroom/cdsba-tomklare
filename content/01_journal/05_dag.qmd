@@ -11,7 +11,7 @@ library(dagitty)
 library(ggdag)
 
 
-schooling_2 <- dagify(
+dag <- dagify(
   parking_spots ~ location,
   sales ~ location,
   sales ~ parking_spots,
@@ -20,7 +20,7 @@ schooling_2 <- dagify(
 )
 
 # Plot DAG
-ggdag(schooling_2, text = F) +
+ggdag(dag, text = F) +
   geom_dag_point(color = "blue") +
   geom_dag_text(color = NA) +
   geom_dag_edges(edge_color = "black") +
